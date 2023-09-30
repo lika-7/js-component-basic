@@ -27,7 +27,7 @@ function routeRender(routes){
     //a=123&b=456
     // ['a=123', 'b=456']
     // {a: '123', b: '456'}
-    const query = queryString
+    const query = queryString// 배열을 객체로 바꿈
     .split('&')
     .reduce((acc, cur)=>{
         const [key, value] = cur.split('=')
@@ -54,4 +54,24 @@ export function createRouter(routes){
         })
         routeRender(routes) //최초 호출, popstate는 처음에 직접 동작하지 않음
     }
+}
+
+//// store ////
+export class Store{
+    constructor(state){
+        this.state = {}
+        this.observers = {}
+        for(const key in state){
+            Object.defineProperty(this.state, key, {
+                get:() =>state[key] , //state['message']
+                set: val =>{
+                    state[key] =val
+                    this.observers[key]()   //observers 함수를 실행해준다
+                }
+            })
+        }
+    }
+    subscribe(key,cb){ //어떤 데이터 감시, 변경이 감지되면 어떤 내용이 실행될건지 정의
+        this.observers[key] = cb
+    }   
 }
