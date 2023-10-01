@@ -66,12 +66,16 @@ export class Store{
                 get:() =>state[key] , //state['message']
                 set: val =>{
                     state[key] =val
-                    this.observers[key]()   //observers 함수를 실행해준다
+                    //this.observers['message']()
+                    this.observers[key].forEach(observer=>observer(val))   //observers의 key로배열 데이터를 확인해서 cb를 사용함 observer가 각각의 cb, 필요한 경우에 setter에 들어온 val를 콜백 함수가 사용할수 있게 함
                 }
             })
         }
     }
     subscribe(key,cb){ //어떤 데이터 감시, 변경이 감지되면 어떤 내용이 실행될건지 정의
-        this.observers[key] = cb
+        //{message: [cb1, cb2, cb3 ...]} 등록해놓은 subscribe 함수들이 실행 됨
+        Array.isArray(this.observers[key])
+            ?this.observers[key].push(cb)
+            : this.observers[key] = [cb]
     }   
 }
